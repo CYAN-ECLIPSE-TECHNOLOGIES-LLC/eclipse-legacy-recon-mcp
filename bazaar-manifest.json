@@ -1,7 +1,7 @@
 {
  "bench": {
-  "bench_verdict": "FAILED",
-  "certified": false,
+  "bench_verdict": "CERTIFIED(local)",
+  "certified": true,
   "checks": [],
   "not_tested": [
    "Manifest ecosystems beyond the v0.1 parsers listed in README (no Gradle dependency extraction, no lockfile parsing)",
@@ -15,8 +15,8 @@
    "Withdrawn W7/W8: completeness over permission-denied subtrees and report-and-skip treatment of self-referential symlink loops (B-LR-7)",
    "B-LR-12 remains a cosmetic bench-suite wording item, not a product claim"
   ],
-  "scorecard_ref": "test-bench/results/eclipse-legacy-recon-mcp-2026-10-26-10.json",
-  "status": "FAILED — Eclipse Bazaar Test Bench card -10, 2026-10-26, 22/25 checks pass, 2 fail, 1 na, at the former universal JS/TS claim. Claims narrowed to CLAIM-SCOPE.md on 2026-10-26; scoped re-bench pending. Synced by bazaar-mcp/sync_verdicts.py (EB-09)."
+  "scorecard_ref": "test-bench/results/eclipse-legacy-recon-mcp-2026-10-26-11.json",
+  "status": "CERTIFIED(local) — Eclipse Bazaar Test Bench card -11, 2026-10-26, 30/30 checks pass, at the NARROWED OBSERVED SCOPE (CLAIM-SCOPE.md); scoped re-bench of the narrowed claims (cards -1..-10 retained append-only; card -10 FAILED at the former universal JS/TS claim). Synced by bazaar-mcp/sync_verdicts.py (EB-09)."
  },
  "category": "Code Analysis — Modernization",
  "claim_scope": {
@@ -32,6 +32,7 @@
    "javascript_typescript_observed_positive_entries_within_claim_scope",
    "standing_unknown_categories_with_reasons"
   ],
+  "supported_claim": "Positive DECLARED, OBSERVED, and INFERRED reports only within CLAIM-SCOPE.md, with evidence or basis carried in the output; OBSERVED is not exhaustive.",
   "version": "narrowed-observed-scope/2026-10-26.1",
   "withdrawn": [
    "JS_TS_MULTILINE_BLOCK_COMMENT_CONTINUATION_AFTER_SPLIT_NO_CLOSE_SPAN",
@@ -46,14 +47,14 @@
   ]
  },
  "created": "2026-10-25",
- "description": "Legacy Recon is local, read-only static recon at the NARROWED OBSERVED SCOPE in CLAIM-SCOPE.md: point an agent at a directory and get (a) an architecture map (languages, packages, entry points, layering signals, file/size distribution), (b) a scoped dependency + end-of-life risk list (the README-listed manifest parsers plus a small explicit versioned-in-code EOL rules table; each EOL entry cites its rule id), and (c) modernization estimate INPUTS — LOC by language, test presence/ratio, manifest age signals, coupling hotspots by fan-in — raw inputs, never an estimate. Novel mechanism: evidence-bound recon at the narrowed scope. Within that scope, reported entries cite a file path plus the manifest line, structural fact, or inference basis they rest on; standing UNKNOWN categories carry reasons, never a guessed stack; DECLARED (manifest), OBSERVED (import statements), and INFERRED (labeled inference with basis) stay in separate lists. OBSERVED is a scoped positive inventory, not an exhaustive or universal JS/TS claim. Withdrawn by name: W1 JS/TS multiline block-comment continuation after a split no-closing-slash span; W2 chained no-closing-slash JS/TS spans on one line; W3 B-LR-14 invalid-line identifier-follow shapes; W4 exhaustive OBSERVED recall; W5 dynamic-import observation or a dedicated dynamic-import UNKNOWN; W6 .mts/.cts OBSERVED extraction; W7 completeness over permission-denied subtrees; W8 report-and-skip treatment of self-referential symlink loops; W9 hosted, authenticated, or multi-tenant operation. Safety: target code is never executed or imported, ordinary symlinks are never traversed (resolvable escapes are reported), binary and oversize files are skipped and counted, and the file-count cap surfaces as a named truncation flag. Free, services-led: a narrowed-scope recon can be a qualified modernization lead for CETech's legacy modernization line.",
+ "description": "Legacy Recon is local, read-only static recon at the NARROWED OBSERVED SCOPE in CLAIM-SCOPE.md: point an agent at a directory and get (a) an architecture map (languages, packages, entry points, layering signals, file/size distribution), (b) a scoped dependency + end-of-life risk list (the README-listed manifest parsers plus a small explicit versioned-in-code EOL rules table; each EOL entry cites its rule id), and (c) modernization estimate INPUTS — LOC by language, test presence/ratio, manifest age signals, coupling hotspots by fan-in — raw inputs, never an estimate. Novel mechanism: evidence-bound recon at the NARROWED OBSERVED SCOPE (CLAIM-SCOPE.md). Positive DECLARED, OBSERVED, and INFERRED reports only within CLAIM-SCOPE.md, with evidence or basis carried in the output; OBSERVED is not exhaustive. Within that scope, reported entries cite a file path plus the manifest line, structural fact, or inference basis they rest on; standing UNKNOWN categories carry reasons, never a guessed stack; DECLARED (manifest), OBSERVED (import statements), and INFERRED (labeled inference with basis) stay in separate lists. OBSERVED is a scoped positive inventory, not an exhaustive or universal JS/TS claim. Withdrawn by name: W1 JS/TS multiline block-comment continuation after a split no-closing-slash span; W2 chained no-closing-slash JS/TS spans on one line; W3 B-LR-14 invalid-line identifier-follow shapes; W4 exhaustive OBSERVED recall; W5 dynamic-import observation or a dedicated dynamic-import UNKNOWN; W6 .mts/.cts OBSERVED extraction; W7 completeness over permission-denied subtrees; W8 report-and-skip treatment of self-referential symlink loops; W9 hosted, authenticated, or multi-tenant operation. Safety: target code is never executed or imported, ordinary symlinks are never traversed (resolvable escapes are reported), binary and oversize files are skipped and counted, and the file-count cap surfaces as a named truncation flag. Free, services-led: a narrowed-scope recon can be a qualified modernization lead for CETech's legacy modernization line.",
  "icon": null,
  "name": "Eclipse Legacy Recon MCP",
  "powered_by": "Cyan Eclipse Technologies",
  "price_model": "Free local v0.1 (services-led assessment funnel into CETech modernization work)",
  "repo": null,
  "slug": "eclipse-legacy-recon-mcp",
- "status": "In development — v0.1.0 local build (read-only static recon at the narrowed observed scope in CLAIM-SCOPE.md); FAILED — Eclipse Bazaar Test Bench card -10 at the former universal claim (22 pass, 2 fail, 1 na of 25); claims narrowed 2026-10-26, scoped re-bench pending; all 10 cards retained append-only.",
+ "status": "In development — v0.1.0 local build (read-only static recon at the NARROWED OBSERVED SCOPE in CLAIM-SCOPE.md); CERTIFIED(local) — Eclipse Bazaar Test Bench card -11, 2026-10-26, 30/30 checks at the narrowed scope; cards -1..-10 retained append-only (card -10 FAILED at the former universal claim; the scoped re-bench at the narrowed claims is the standing verdict).",
  "tagline": "Point an agent at a codebase: narrowed-scope architecture map, dependency/EOL risk list, modernization estimate inputs.",
  "tools": [
   "recon_scan",
