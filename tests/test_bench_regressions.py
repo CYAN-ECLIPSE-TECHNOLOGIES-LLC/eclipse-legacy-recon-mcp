@@ -623,6 +623,66 @@ class Round5BLR13AndResiduals(unittest.TestCase):
         self.assertEqual(names, ["real-tpl2"], names)
 
 
+# B-LR-10 residual-1, NO-CLOSING-SLASH sub-family (bench run-8,
+# card -8, X1 — the one gating defect): JS/TS quote-pair patterns
+# where the regex reading NEVER terminates (no closing '/').
+# The string reading is coherent (operator follow) while the
+# regex reading is incoherent, so round-5 string precedence
+# fired and exposed the import-shaped pattern tail as code.
+# Shapes below are BYTE-FOR-BYTE the run-7/run-8 wire line for
+# the from-form, and the card-named siblings (require / object /
+# return / single-quote-pair) reconstructed in the exact same
+# lineage shape (/"a/b" + x <form>) — NOT the round-5 builder
+# test_b shape (which silently added a closing '/', dropped
+# the 'x', and changed the pair to 'b/c').
+_NC_EXACT = '''/"a/b" + x from 'wghostBimp';'''
+_NC_SIBLINGS = [
+    '''/"a/b" + x require('wghostBncReq');''',
+    '''const o = {re: /"a/b" + x require('wghostBncObj')};''',
+    '''function f(){ return /"a/b" + x require('wghostBncRet'); }''',
+    """/'a/b' + x from "wghostBncSq";""",
+    '''/`a/b` + x from 'wghostBncTpl';''',
+]
+_NC_DYN_CLEAN = '''/"a/b" + x import('wghostBncDyn');'''
+
+
+class Round6BLR10NoClosingSlash(unittest.TestCase):
+    def test_exact_run7_line_byte_for_byte_no_phantom(self):
+        real = "const r = require('real-nc');"
+        for lang in ("JavaScript", "TypeScript"):
+            with self.subTest(lang=lang):
+                names = [m for m, _, _ in
+                         eng.scan_imports(lang, [_NC_EXACT, real])]
+                self.assertEqual(names, ["real-nc"], (lang, names))
+
+    def test_no_close_siblings_scan_level_no_phantoms(self):
+        real = "const r = require('real-nc');"
+        for lang in ("JavaScript", "TypeScript"):
+            for line in _NC_SIBLINGS:
+                with self.subTest(shape=line, lang=lang):
+                    names = [m for m, _, _ in
+                             eng.scan_imports(lang, [line, real])]
+                    self.assertEqual(names, ["real-nc"],
+                                     (line, lang, names))
+
+    def test_no_close_family_end_to_end_real_alongside_caught(self):
+        td = _tree({
+            "a.js": "\n".join([_NC_EXACT] + _NC_SIBLINGS
+                              + [_NC_DYN_CLEAN]) + "\n"
+                    "const r = require('real-nc-wire');\n",
+            "b.ts": _NC_EXACT + "\n"
+                    "import realts from 'realts-nc';\n"})
+        obs = _observed(td)
+        self.assertFalse(any(n.startswith("wghost") for n in obs), obs)
+        self.assertIn("real-nc-wire", obs)
+        self.assertIn("realts-nc", obs)
+
+    def test_dyn_form_remains_clean_control(self):
+        names = [m for m, _, _ in
+                 eng.scan_imports("JavaScript", [_NC_DYN_CLEAN])]
+        self.assertEqual(names, [], names)
+
+
 if __name__ == "__main__":
     unittest.main()
 

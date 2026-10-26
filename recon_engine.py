@@ -404,6 +404,15 @@ IMPORT_RES = [
 # unchanged (mask MORE, to EOL, never less). (C, B-LR-10
 # residual 3) the template balance gate counts only ${-opened
 # braces — a raw '}' in template text unbalances nothing.
+# Round 6 (B-LR-10 residual 1, NO-CLOSING-SLASH sub-family;
+# bench run-8): string/template precedence may only fire when
+# the quote-as-pattern reading closes coherently somewhere —
+# if _js_regex_coherent_end finds NO closing '/' at all, the
+# span is unterminated, precedence does not fire, and the
+# caller masks to end-of-line (phantom-safe law above). The
+# round-5 rule let a coherent STRING reading (operator-followed
+# pair close) beat an incoherent (never-closing) regex reading
+# and exposed the pattern tail as code (/"a/b" + x from '...';).
 
 
 def _blank(out, text, start, end):
@@ -795,6 +804,19 @@ def _js_regex_end(text, i, tpl_strict_brace=False):
                     coherent = _js_regex_coherent_end(text, i)
                     if coherent is not None and coherent > closed:
                         return coherent
+                    if coherent is None:
+                        # Round 6, B-LR-10 residual-1 NO-CLOSE
+                        # sub-family (bench run-8): the regex
+                        # reading NEVER terminates — no closing
+                        # '/' exists in the pair-skipping scan —
+                        # so there is no coherent regex span for
+                        # the string reading to win against, and
+                        # returning the string end would expose
+                        # the pattern tail as code (the exact
+                        # run-7 line /"a/b" + x from '...';).
+                        # Phantom-safe law restored: unterminated
+                        # span -> None, caller masks to EOL.
+                        return None
                     return closed  # string wins; mask thru its end
                 j += 1  # pattern quote (e.g. /'/): ordinary char
                 continue
@@ -821,6 +843,12 @@ def _js_regex_end(text, i, tpl_strict_brace=False):
                     coherent = _js_regex_coherent_end(text, i)
                     if coherent is not None and coherent > end:
                         return coherent
+                    if coherent is None:
+                        # Round 6: same no-close rule as the
+                        # quote branch — an unterminated regex
+                        # reading cannot lose to the template
+                        # reading; mask to EOL instead.
+                        return None
                     return end  # template wins; mask thru its end
                 j += 1  # pattern backtick: ordinary char
                 continue
