@@ -413,6 +413,15 @@ IMPORT_RES = [
 # round-5 rule let a coherent STRING reading (operator-followed
 # pair close) beat an incoherent (never-closing) regex reading
 # and exposed the pattern tail as code (/"a/b" + x from '...';).
+# Round 7 (B-LR-10 residual 1, COMMENT-OPENER sub-family;
+# bench run-9): a candidate closing '/' immediately followed
+# by '/' or '*' is the first slash of a // or /* comment
+# opener, never a coherent regex close — in both acceptance
+# sites (_js_regex_coherent_end and the final-slash branch of
+# _js_regex_end, the latter the only path slash-free / no-pair
+# spans take) it is treated as no-close -> mask to EOL, so
+# the span can no longer split a comment opener and expose
+# comment text as code (// from 'wghostW1c'; and siblings).
 
 
 def _blank(out, text, start, end):
@@ -697,8 +706,10 @@ def _js_regex_coherent_end(text, i):
     a value, so the follow inventory is the same); None when
     the scan reaches EOL/EOF without closing, or that first
     close's follow is incoherent (an identifier start that is
-    not a follow word) — the regex reading then fails and
-    string precedence may fire instead."""
+    not a follow word), or that first closing slash is the
+    first half of a // or /* comment opener (round 7) — the
+    regex reading then fails and string precedence may fire
+    instead."""
     j, n = i + 1, len(text)
     in_class = False
     while j < n:
@@ -736,6 +747,14 @@ def _js_regex_coherent_end(text, i):
             j = end if closed_tpl else j + 1
             continue
         if c == "/":
+            if j + 1 < n and text[j + 1] in "/*":
+                # Round 7 (B-LR-10 residual 1, COMMENT-OPENER
+                # sub-family; bench run-9): this slash is the
+                # first half of a // or /* comment opener, not
+                # a regex close — accepting it splits the
+                # opener and resync lexes the comment body as
+                # code. No coherent close here.
+                return None
             j += 1
             while j < n and (text[j].isalnum() or text[j] in "_$"):
                 j += 1  # trailing flags
@@ -858,6 +877,14 @@ def _js_regex_end(text, i, tpl_strict_brace=False):
             j += 1  # unterminated template: ordinary char
             continue
         if c == "/":
+            if j + 1 < n and text[j + 1] in "/*":
+                # Round 7 (B-LR-10 residual 1, COMMENT-OPENER
+                # sub-family; bench run-9): slash-free / no-pair
+                # lineage reaches this final-slash branch with
+                # no coherent check ever run — a '/' that opens
+                # a // or /* comment is not a close either.
+                # Unterminated -> None, caller masks to EOL.
+                return None
             j += 1
             while j < n and (text[j].isalnum() or text[j] in "_$"):
                 j += 1  # trailing flags

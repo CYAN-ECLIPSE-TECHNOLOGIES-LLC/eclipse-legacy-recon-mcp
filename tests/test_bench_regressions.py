@@ -683,6 +683,148 @@ class Round6BLR10NoClosingSlash(unittest.TestCase):
         self.assertEqual(names, [], names)
 
 
+# B-LR-10 residual-1, COMMENT-OPENER sub-family (bench run-9,
+# card -9, X1 — the one gating defect): a no-close regex span
+# whose only candidate closing '/' is the FIRST slash of a //
+# or /* comment opener after the import-shaped tail. The
+# close-coherence check (slash-bearing pair/template lineage)
+# or the main scan's final-slash branch (slash-free / no-pair
+# lineage) accepts that slash -> the span splits the comment
+# opener -> resync lexes the comment BODY as code -> ghost
+# deps minted from comment text. Controls with genuinely
+# closed regexes mask the same comments cleanly.
+# Verbatim card-9 shapes: W1 line, C6 slash-free pair, C7
+# no-pair span, C10 genuine-close control. W2/W3/W4/W5/W6 and
+# the CRLF line are reconstructed in the exact card lineage
+# (/"a/b" + x <form>; <comment with ghost>) with the card's
+# ghost names (wghostW2c/W3c/W4c/W5c/W6c, CRLF wghostXcc2).
+_W1_EXACT = '''/"a/b" + x from 'wghostW1'; // from 'wghostW1c';'''
+_W2_BLOCK = '''/"a/b" + x require('wghostW2');'''
+_W2_BLOCK += ''' /* require('wghostW2c') */'''
+_W3_TS = '''/"a/b" + x from 'wghostW3'; // from 'wghostW3c';'''
+_W4_TSX = '''/"a/b" + x from 'wghostW4'; // from 'wghostW4c';'''
+_W5_SQ = """/'a/b' + x from "wghostW5"; // from "wghostW5c";"""
+_W6_TPL = '''/`a/b` + x from 'wghostW6'; // from 'wghostW6c';'''
+_C6_SLASHFREE = '''/"ab" + x ; // from 'wghostC6';'''
+_C7_NOPAIR = '''/ab + x ; // from 'wghostC7';'''
+_C10_CONTROL = '''const re = /"a/b" + x/; // from 'wghostC10';'''
+_X_CRLF = '''/"a/b" + x from 'wghostXc'; // from 'wghostXcc2';'''
+
+
+def _w_matrix_lines():
+    """Generated class pin: pair lineage (dq / sq / template /
+    slash-free / no-pair) x comment form (// from, // require,
+    /* */ from, /* */ require). Yields (label, line, ghosts)."""
+    spans = [
+        ("dq", '''/"a/b" + x from 'SPAN'; '''),
+        ("sq", """/'a/b' + x from "SPAN"; """),
+        ("tpl", '''/`a/b` + x from 'SPAN'; '''),
+        ("slashfree", '''/"ab" + x ; '''),
+        ("nopair", '''/ab + x ; '''),
+    ]
+    comments = [
+        ("lc-from", '''// from 'CMT';'''),
+        ("lc-req", '''// require('CMT');'''),
+        ("bc-from", '''/* from 'CMT' */'''),
+        ("bc-req", '''/* require('CMT') */'''),
+    ]
+    idx = 0
+    for slabel, span in spans:
+        for clabel, comment in comments:
+            idx += 1
+            span_name = f"wghostM{idx}s" if "SPAN" in span else None
+            cmt_name = f"wghostM{idx}c"
+            line = span.replace("SPAN", span_name or "") \
+                + comment.replace("CMT", cmt_name)
+            ghosts = [g for g in (span_name, cmt_name) if g]
+            yield (f"{slabel}-{clabel}", line, ghosts)
+
+
+class Round7BLR10CommentOpener(unittest.TestCase):
+    def test_w1_exact_card_line_no_comment_ghost(self):
+        real = "const r = require('real-w1');"
+        for lang in ("JavaScript", "TypeScript"):
+            with self.subTest(lang=lang):
+                names = [m for m, _, _ in
+                         eng.scan_imports(lang, [_W1_EXACT, real])]
+                self.assertEqual(names, ["real-w1"], (lang, names))
+
+    def test_w2_block_comment_require_no_ghost(self):
+        real = "const r = require('real-w2');"
+        for lang in ("JavaScript", "TypeScript"):
+            with self.subTest(lang=lang):
+                names = [m for m, _, _ in
+                         eng.scan_imports(lang, [_W2_BLOCK, real])]
+                self.assertEqual(names, ["real-w2"], (lang, names))
+
+    def test_w5_sq_pair_and_w6_template_pair_no_ghosts(self):
+        real = "const r = require('real-w56');"
+        for lang in ("JavaScript", "TypeScript"):
+            for line in (_W5_SQ, _W6_TPL):
+                with self.subTest(shape=line, lang=lang):
+                    names = [m for m, _, _ in
+                             eng.scan_imports(lang, [line, real])]
+                    self.assertEqual(names, ["real-w56"],
+                                     (line, lang, names))
+
+    def test_c6_slashfree_pair_and_c7_nopair_no_ghosts(self):
+        real = "const r = require('real-c67');"
+        for lang in ("JavaScript", "TypeScript"):
+            for line in (_C6_SLASHFREE, _C7_NOPAIR):
+                with self.subTest(shape=line, lang=lang):
+                    names = [m for m, _, _ in
+                             eng.scan_imports(lang, [line, real])]
+                    self.assertEqual(names, ["real-c67"],
+                                     (line, lang, names))
+
+    def test_generated_pair_x_comment_matrix_no_ghosts(self):
+        real = "const r = require('real-wm');"
+        count = 0
+        for label, line, ghosts in _w_matrix_lines():
+            count += 1
+            for lang in ("JavaScript", "TypeScript"):
+                with self.subTest(shape=label, lang=lang):
+                    names = [m for m, _, _ in
+                             eng.scan_imports(lang, [line, real])]
+                    self.assertEqual(names, ["real-wm"],
+                                     (label, lang, names))
+        self.assertGreaterEqual(count, 20)  # matrix really ran
+
+    def test_comment_opener_family_end_to_end_js_ts_tsx(self):
+        td = _tree({
+            "a.js": "\n".join([_W1_EXACT, _W2_BLOCK, _W5_SQ,
+                               _W6_TPL, _C6_SLASHFREE, _C7_NOPAIR])
+                    + "\nconst r = require('real-w-wire');\n",
+            "b.ts": _W3_TS + "\nimport realts from 'realts-w';\n",
+            "c.tsx": _W4_TSX + "\nimport realtsx from 'realtsx-w';\n"})
+        obs = _observed(td)
+        self.assertFalse(any(n.startswith("wghost") for n in obs),
+                         obs)
+        self.assertIn("real-w-wire", obs)
+        self.assertIn("realts-w", obs)
+        self.assertIn("realtsx-w", obs)
+
+    def test_crlf_variant_end_to_end_no_ghost(self):
+        td = tempfile.mkdtemp()
+        (Path(td) / "crlf.js").write_bytes(
+            (_X_CRLF + "\r\n"
+             "const r = require('real-crlf');\r\n").encode())
+        obs = _observed(td)
+        self.assertFalse(any(n.startswith("wghost") for n in obs),
+                         obs)
+        self.assertIn("real-crlf", obs)
+
+    def test_genuine_close_control_comment_still_masked(self):
+        # Card control: identical comment after a genuinely
+        # closed regex is masked clean — must stay clean.
+        real = "const r = require('real-c10');"
+        for lang in ("JavaScript", "TypeScript"):
+            with self.subTest(lang=lang):
+                names = [m for m, _, _ in
+                         eng.scan_imports(lang, [_C10_CONTROL, real])]
+                self.assertEqual(names, ["real-c10"], (lang, names))
+
+
 if __name__ == "__main__":
     unittest.main()
 
