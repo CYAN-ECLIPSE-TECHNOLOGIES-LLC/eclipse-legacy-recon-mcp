@@ -7,8 +7,9 @@
 
 Powered by Cyan Eclipse Technologies (cetech.ai).
 Read-only: tools scan a caller-supplied local directory and
-return evidence-bound reports. No writes, no execution of target
-code, no network. Named refusals, fail-closed.
+return reports at the narrowed observed scope in CLAIM-SCOPE.md.
+No writes, no execution of target code, no network. Named
+refusals, fail-closed.
 """
 import json
 import sys
@@ -23,26 +24,27 @@ from recon_engine import ToolError  # noqa: E402
 TOOLS = {
     "recon_scan": (
         lambda args: eng.scan_target(args),
-        "Full recon of a local codebase directory: architecture "
-        "map + dependency/EOL risks + modernization-estimate "
-        "inputs, in one evidence-bound report. Read-only; never "
-        "executes target code. " + eng.DESCRIPTOR,
+        "Narrowed-scope recon of a local codebase directory: "
+        "architecture map + dependency/EOL risks + "
+        "modernization-estimate inputs, in one scoped report. "
+        "Read-only; never executes target code. " + eng.DESCRIPTOR,
         {"path": {"type": "string"},
          "max_files": {"type": "integer"}},
         ["path"]),
     "architecture_map": (
         eng.architecture_map,
-        "Architecture map only: languages, module/package "
-        "structure, entry points, layering signals, file/size "
-        "distribution — every item cites its evidence. "
-        + eng.DESCRIPTOR,
+        "Architecture map only, at the narrowed observed scope: "
+        "languages, module/package structure, entry points, "
+        "layering signals, file/size distribution, with the "
+        "evidence recorded by the engine. " + eng.DESCRIPTOR,
         {"path": {"type": "string"},
          "max_files": {"type": "integer"}},
         ["path"]),
     "dependency_risk_list": (
         eng.dependency_risk_list,
-        "Dependency inventory (DECLARED / OBSERVED / INFERRED, "
-        "kept separate) + EOL/unpinned risk list. Every EOL claim "
+        "Scoped dependency inventory (DECLARED / OBSERVED / "
+        "INFERRED, kept separate; OBSERVED is positive and "
+        "non-exhaustive) + EOL/unpinned risk list. Each EOL entry "
         "cites its rule id from the versioned rules table. "
         + eng.DESCRIPTOR,
         {"path": {"type": "string"},
@@ -114,7 +116,8 @@ def handle(req):
             "capabilities": {"tools": {}},
             "serverInfo": {"name": "eclipse-legacy-recon",
                            "version": "0.1.0",
-                           "descriptor": eng.DESCRIPTOR}}}
+                           "descriptor": eng.DESCRIPTOR,
+                           "claim_scope": eng.CLAIM_SCOPE}}}
     if method == "ping":
         return {"jsonrpc": "2.0", "id": rid, "result": {}}
     if method == "tools/list":

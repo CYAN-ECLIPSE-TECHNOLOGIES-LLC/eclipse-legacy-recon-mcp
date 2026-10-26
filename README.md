@@ -2,23 +2,29 @@
 
 **Powered by Cyan Eclipse Technologies** — https://cetech.ai
 
-**Point an agent at a codebase: architecture map, dependency/EOL risk list, modernization estimate inputs.**
+**Point an agent at a codebase: narrowed-scope architecture map, dependency/EOL risk list, modernization estimate inputs.**
 
 ## Status — honest labels
 
-v0.1.0, **local, read-only**. MCP over stdio, Python stdlib only. No certification claimed — **bench pending**. Catalog entry: `legacy-recon-mcp` (spec sketch: `mcp-product-slate-20261023.md` §5). Free; services-led assessment funnel into CETech's legacy modernization line.
+v0.1.0, **local, read-only**. MCP over stdio, Python stdlib only. No certification claimed. The latest bench card (-10, 2026-10-26) is **FAILED 22/25 at the former universal JS/TS claim**; the owner disposition is to narrow the claims to the observed scope in [CLAIM-SCOPE.md](CLAIM-SCOPE.md), not to stand the product as permanently FAILED and not to run a fourth fix round. A scoped re-bench is still required before any certification claim. Catalog entry: `legacy-recon-mcp` (spec sketch: `mcp-product-slate-20261023.md` §5). Free; services-led assessment funnel into CETech's legacy modernization line.
 
-## Novel mechanism — evidence-bound recon
+## Claim scope — narrowed to what was observed
 
-Every claim in the map and risk list cites a file path plus the manifest line or structural fact it rests on. Anything not determinable statically reports **UNKNOWN with the reason** — never a guessed stack. The dependency inventory distinguishes, in separate lists that are never blended:
+Within [CLAIM-SCOPE.md](CLAIM-SCOPE.md), reported entries cite the file path plus the manifest line, structural fact, or inference basis they rest on. The standing UNKNOWN categories implemented by the engine carry reasons — never a guessed stack. OBSERVED is a **scoped positive inventory, not an exhaustive inventory**.
+
+Withdrawn by name in the canonical scope note: JS/TS multiline block-comment continuation after a split no-closing-slash span (W1); chained no-closing-slash JS/TS spans (W2); B-LR-14 invalid-line identifier-follow shapes (W3); exhaustive OBSERVED recall (W4); dynamic-import observation or a dedicated dynamic-import UNKNOWN (W5); `.mts`/`.cts` OBSERVED extraction (W6); completeness over permission-denied subtrees (W7); report-and-skip treatment of self-referential symlink loops (W8); and hosted/authenticated/multi-tenant operation (W9).
+
+## Novel mechanism — evidence-bound recon at the narrowed scope
+
+At the narrowed scope, the dependency inventory distinguishes, in separate lists that are never blended:
 
 - **DECLARED** — parsed from a manifest, with the manifest line as evidence.
-- **OBSERVED** — import statements in code, with file + line as evidence (internal imports flagged `internal`).
+- **OBSERVED** — positive import reports in code within CLAIM-SCOPE.md, with file + line as evidence (internal imports flagged `internal`); not an exhaustive inventory.
 - **INFERRED** — labeled inference with its basis stated (e.g. import root `PIL` → distribution `Pillow` via a built-in mapping table; an import with no matching declared entry → inferred undeclared dependency).
 
 ## Tools
 
-`recon_scan` (full report) · `architecture_map` · `dependency_risk_list` · `modernization_inputs`
+`recon_scan` (combined narrowed-scope report) · `architecture_map` · `dependency_risk_list` · `modernization_inputs`
 
 All take `path` (required string) and optional `max_files` (integer, 1–50000, default 5000, via the house `coerce_int_param` guard pattern).
 
@@ -33,7 +39,7 @@ EOL risk comes only from a small, explicit, versioned-in-code rules table (`EOL_
 ## Safety
 
 - Target code is **never executed, imported, or shelled out to**; no network calls.
-- **Symlinks are never traversed** — every symlink is reported; one resolving outside the target tree is flagged `escape: true`.
+- **Symlinks are never traversed** — ordinary resolvable symlinks are reported; one resolving outside the target tree is flagged `escape: true`. A self-referential symlink loop is the named exception in CLAIM-SCOPE.md W8: it can refuse the scan with `TARGET_PATH_INVALID` instead of being reported and skipped.
 - Binary files are skipped and counted, never parsed as text; files over 1 MB are not text-parsed.
 - Caps fail visibly: hitting `max_files` sets `truncated: true` + `MAX_FILES_REACHED` — a truncated scan never presents as complete.
 - Named, fail-closed refusals: `TARGET_NOT_FOUND`, `TARGET_NOT_DIRECTORY`, `TARGET_EMPTY`, `TARGET_PATH_INVALID`, `MAX_FILES_INVALID`, `ARGUMENTS_INVALID`. Malformed wire args are `-32602` naming the argument, never a raw `-32603`.
@@ -51,7 +57,14 @@ Fixtures: `fixtures/legacy-tree/` — synthetic mixed Python+JS legacy tree: Dja
 
 ## Limitations (v0.1)
 
-No lockfile parsing; no Gradle dependency extraction; no git history (manifest age = mtime only); DB/CI/deployment are UNKNOWN by design; EOL table is deliberately small and covers only its listed rules; import scanning is regex-based per language, not AST.
+[CLAIM-SCOPE.md](CLAIM-SCOPE.md) is the controlling claim boundary. In particular:
+
+- No lockfile parsing; no Gradle dependency extraction; no git history (manifest age = mtime only); DB/CI/deployment are standing UNKNOWN categories; the EOL table is deliberately small and covers only its listed rules.
+- Import scanning is regex-based, not AST. OBSERVED extraction is a scoped positive report and takes at most one regex match per physical line. The bench-derived OBSERVED accuracy scope in CLAIM-SCOPE.md is stated for Python and JS/TS; no separate bench-observed accuracy claim is made for the Go/Ruby/Java/PHP import patterns.
+- JS/TS recall can miss split `require(`/`import` forms, a second import on a line, and imports after template over-masking shapes named in CLAIM-SCOPE.md W4. Python recall can miss semicolon/statement-followed imports on a line, comma-list second modules, backslash continuations, and relative from-imports.
+- Dynamic imports are not guessed into OBSERVED, and there is no dedicated dynamic-import UNKNOWN entry (W5).
+- `.mts` and `.cts` files do not receive OBSERVED extraction (W6).
+- A permission-denied subdirectory can be omitted without a truncation flag, so no completeness claim is made over such a tree (W7).
 
 ---
 

@@ -5,23 +5,56 @@
   "checks": [],
   "not_tested": [
    "Manifest ecosystems beyond the v0.1 parsers listed in README (no Gradle dependency extraction, no lockfile parsing)",
-   "Hosted / multi-tenant operation and auth beyond the stdio process boundary",
-   "Standing bench backlog from run 8: B-LR-10 residual 1 (the gating X1 sub-family), B-LR-15 (MEDIUM recall: raw-} template nested in ${} over-masks the rest of the file, FN-only), B-LR-5 (MED-LOW JS recall), B-LR-6 (LOW PY recall), B-LR-14 (LOW: non-inventory identifier follow on invalid lines only), B-LR-7, B-LR-3, B-LR-12"
+   "Hosted / multi-tenant operation and auth beyond the stdio process boundary (withdrawn W9)",
+   "Withdrawn W1: JS/TS multiline block-comment continuation after a split no-closing-slash regex-like span (card -10 X1)",
+   "Withdrawn W2: JS/TS chained no-closing-slash regex-like spans on one physical line (card -10 X1)",
+   "Withdrawn W3: B-LR-14 non-inventory identifier follow on invalid JS/TS lines only",
+   "Withdrawn W4: exhaustive OBSERVED recall — B-LR-5 (JS), B-LR-6 (Python), and B-LR-15 / template-${} over-masking recall limits",
+   "Withdrawn W5: dynamic-import OBSERVED entries and a dedicated dynamic-import UNKNOWN (B-LR-3)",
+   "Withdrawn W6: .mts/.cts OBSERVED extraction (suffixes absent from EXT_LANG)",
+   "Withdrawn W7/W8: completeness over permission-denied subtrees and report-and-skip treatment of self-referential symlink loops (B-LR-7)",
+   "B-LR-12 remains a cosmetic bench-suite wording item, not a product claim"
   ],
   "scorecard_ref": "test-bench/results/eclipse-legacy-recon-mcp-2026-10-26-10.json",
-  "status": "FAILED — Eclipse Bazaar Test Bench 2026-10-26, 22/25 checks pass, 2 fail, 1 na (run 8 standing; final re-bench of the wave). Synced by bazaar-mcp/sync_verdicts.py (EB-09)."
+  "status": "FAILED — Eclipse Bazaar Test Bench card -10, 2026-10-26, 22/25 checks pass, 2 fail, 1 na, at the former universal JS/TS claim. Claims narrowed to CLAIM-SCOPE.md on 2026-10-26; scoped re-bench pending. Synced by bazaar-mcp/sync_verdicts.py (EB-09)."
  },
  "category": "Code Analysis — Modernization",
+ "claim_scope": {
+  "document": "CLAIM-SCOPE.md",
+  "status": "NARROWED_TO_OBSERVED_SCOPE",
+  "supported": [
+   "local_stdio_read_only_recon",
+   "architecture_and_modernization_inputs_from_scanned_files",
+   "declared_dependencies_from_readme_listed_manifest_parsers",
+   "eol_claims_only_from_the_versioned_rules_table",
+   "declared_observed_inferred_separation",
+   "python_observed_positive_entries_within_claim_scope",
+   "javascript_typescript_observed_positive_entries_within_claim_scope",
+   "standing_unknown_categories_with_reasons"
+  ],
+  "version": "narrowed-observed-scope/2026-10-26.1",
+  "withdrawn": [
+   "JS_TS_MULTILINE_BLOCK_COMMENT_CONTINUATION_AFTER_SPLIT_NO_CLOSE_SPAN",
+   "JS_TS_CHAINED_NO_CLOSING_SLASH_REGEX_SPANS_ON_ONE_LINE",
+   "B_LR_14_INVALID_LINE_NONINVENTORY_IDENTIFIER_FOLLOW",
+   "EXHAUSTIVE_OBSERVED_RECALL",
+   "DYNAMIC_IMPORT_OBSERVATION_OR_SPECIFIC_UNKNOWN",
+   "MTS_CTS_OBSERVED_EXTRACTION",
+   "PERMISSION_DENIED_SUBTREE_COMPLETENESS",
+   "SELF_REFERENTIAL_SYMLINK_REPORT_AND_SKIP",
+   "HOSTED_AUTHENTICATED_OR_MULTI_TENANT_OPERATION"
+  ]
+ },
  "created": "2026-10-25",
- "description": "Legacy Recon is read-only static recon of a local codebase: point an agent at a directory and get (a) an architecture map (languages, packages, entry points, layering signals, file/size distribution), (b) a dependency + end-of-life risk list (manifest parsing plus a small explicit versioned-in-code EOL rules table; every EOL claim cites its rule id), and (c) modernization estimate INPUTS — LOC by language, test presence/ratio, manifest age signals, coupling hotspots by fan-in — raw inputs, never an estimate. Novel mechanism: evidence-bound recon. Every claim cites a file path plus the manifest line or structural fact it rests on; anything not determinable statically reports UNKNOWN with the reason, never a guessed stack; the dependency inventory keeps DECLARED (manifest), OBSERVED (import statements) and INFERRED (labeled inference with basis) in separate lists, never blended. Safety: target code is never executed or imported, symlinks are never traversed (escapes are reported), binary files are skipped and counted, and size/file-count caps surface as named truncation flags. Free, services-led: every recon is a qualified modernization lead for CETech's legacy modernization line.",
+ "description": "Legacy Recon is local, read-only static recon at the NARROWED OBSERVED SCOPE in CLAIM-SCOPE.md: point an agent at a directory and get (a) an architecture map (languages, packages, entry points, layering signals, file/size distribution), (b) a scoped dependency + end-of-life risk list (the README-listed manifest parsers plus a small explicit versioned-in-code EOL rules table; each EOL entry cites its rule id), and (c) modernization estimate INPUTS — LOC by language, test presence/ratio, manifest age signals, coupling hotspots by fan-in — raw inputs, never an estimate. Novel mechanism: evidence-bound recon at the narrowed scope. Within that scope, reported entries cite a file path plus the manifest line, structural fact, or inference basis they rest on; standing UNKNOWN categories carry reasons, never a guessed stack; DECLARED (manifest), OBSERVED (import statements), and INFERRED (labeled inference with basis) stay in separate lists. OBSERVED is a scoped positive inventory, not an exhaustive or universal JS/TS claim. Withdrawn by name: W1 JS/TS multiline block-comment continuation after a split no-closing-slash span; W2 chained no-closing-slash JS/TS spans on one line; W3 B-LR-14 invalid-line identifier-follow shapes; W4 exhaustive OBSERVED recall; W5 dynamic-import observation or a dedicated dynamic-import UNKNOWN; W6 .mts/.cts OBSERVED extraction; W7 completeness over permission-denied subtrees; W8 report-and-skip treatment of self-referential symlink loops; W9 hosted, authenticated, or multi-tenant operation. Safety: target code is never executed or imported, ordinary symlinks are never traversed (resolvable escapes are reported), binary and oversize files are skipped and counted, and the file-count cap surfaces as a named truncation flag. Free, services-led: a narrowed-scope recon can be a qualified modernization lead for CETech's legacy modernization line.",
  "icon": null,
  "name": "Eclipse Legacy Recon MCP",
  "powered_by": "Cyan Eclipse Technologies",
  "price_model": "Free local v0.1 (services-led assessment funnel into CETech modernization work)",
  "repo": null,
  "slug": "eclipse-legacy-recon-mcp",
- "status": "In development — v0.1.0 local build (read-only evidence-bound static recon); FAILED — Eclipse Bazaar Test Bench standing verdict, run 8 (22 pass, 2 fail, 1 na of 25), final re-bench of the wave; all 8 cards retained append-only.)",
- "tagline": "Point an agent at a codebase: architecture map, dependency/EOL risk list, modernization estimate inputs.",
+ "status": "In development — v0.1.0 local build (read-only static recon at the narrowed observed scope in CLAIM-SCOPE.md); FAILED — Eclipse Bazaar Test Bench card -10 at the former universal claim (22 pass, 2 fail, 1 na of 25); claims narrowed 2026-10-26, scoped re-bench pending; all 10 cards retained append-only.",
+ "tagline": "Point an agent at a codebase: narrowed-scope architecture map, dependency/EOL risk list, modernization estimate inputs.",
  "tools": [
   "recon_scan",
   "architecture_map",

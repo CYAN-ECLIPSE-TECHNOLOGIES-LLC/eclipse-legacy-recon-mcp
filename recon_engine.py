@@ -8,12 +8,14 @@
 Read-only static analysis of a caller-supplied local directory.
 Never executes, imports, or shells out to target code; no network.
 
-Novel mechanism — evidence-bound recon: every claim cites a file
-path plus the manifest line or structural fact it rests on;
-anything not determinable statically is UNKNOWN with a reason
-(never a guessed stack); the dependency inventory keeps DECLARED
-(manifest), OBSERVED (import statements) and INFERRED (labeled
-inference with basis) in separate lists, never blended.
+Novel mechanism — evidence-bound recon, narrowed to the observed
+scope in CLAIM-SCOPE.md: within that scope, reported entries cite
+a file path plus the manifest line or structural fact they rest
+on; standing UNKNOWN categories carry reasons (never a guessed
+stack); the dependency inventory keeps DECLARED (manifest),
+OBSERVED (import statements) and INFERRED (labeled inference with
+basis) in separate lists, never blended. OBSERVED is a scoped
+positive inventory, not an exhaustive or universal JS/TS claim.
 """
 import json
 import os
@@ -22,10 +24,65 @@ import stat
 from datetime import datetime, timezone
 from pathlib import Path
 
-DESCRIPTOR = ("Read-only legacy codebase recon — architecture map, "
+DESCRIPTOR = ("Read-only legacy codebase recon — NARROWED OBSERVED "
+              "SCOPE (CLAIM-SCOPE.md): architecture map, "
               "dependency/EOL risk list, modernization-estimate "
-              "inputs. Every claim cites its evidence; unknowns "
-              "are reported as UNKNOWN, never guessed.")
+              "inputs. Within that scope, reported entries cite "
+              "evidence or basis; standing unknowns are UNKNOWN, "
+              "never guessed. OBSERVED is a scoped positive "
+              "inventory, not an exhaustive or universal JS/TS claim.")
+
+CLAIM_SCOPE_VERSION = "narrowed-observed-scope/2026-10-26.1"
+CLAIM_SCOPE = {
+    "status": "NARROWED_TO_OBSERVED_SCOPE",
+    "version": CLAIM_SCOPE_VERSION,
+    "document": "CLAIM-SCOPE.md",
+    "basis": ("Eclipse Test Bench cards -1 through -10; card -10 "
+              "FAILED 22/25 at the former universal JS/TS claim"),
+    "supported_claim": (
+        "Positive DECLARED, OBSERVED, and INFERRED reports only "
+        "within CLAIM-SCOPE.md, with evidence or basis carried in "
+        "the output; OBSERVED is not exhaustive."),
+    "supported": [
+        "local_stdio_read_only_recon",
+        "architecture_and_modernization_inputs_from_scanned_files",
+        "declared_dependencies_from_readme_listed_manifest_parsers",
+        "eol_claims_only_from_the_versioned_rules_table",
+        "declared_observed_inferred_separation",
+        "python_observed_positive_entries_within_claim_scope",
+        "javascript_typescript_observed_positive_entries_within_claim_scope",
+        "standing_unknown_categories_with_reasons",
+    ],
+    "withdrawn": [
+        {"id": "W1",
+         "name": "JS_TS_MULTILINE_BLOCK_COMMENT_CONTINUATION_AFTER_SPLIT_NO_CLOSE_SPAN",
+         "claim": "phantom-free JS/TS OBSERVED extraction for the named class"},
+        {"id": "W2",
+         "name": "JS_TS_CHAINED_NO_CLOSING_SLASH_REGEX_SPANS_ON_ONE_LINE",
+         "claim": "phantom-free JS/TS OBSERVED extraction for the named class"},
+        {"id": "W3",
+         "name": "B_LR_14_INVALID_LINE_NONINVENTORY_IDENTIFIER_FOLLOW",
+         "claim": "evidence-bound OBSERVED extraction on the named invalid-line shapes"},
+        {"id": "W4",
+         "name": "EXHAUSTIVE_OBSERVED_RECALL",
+         "claim": "a complete OBSERVED dependency inventory"},
+        {"id": "W5",
+         "name": "DYNAMIC_IMPORT_OBSERVATION_OR_SPECIFIC_UNKNOWN",
+         "claim": "dynamic imports are OBSERVED or receive a dedicated UNKNOWN entry"},
+        {"id": "W6",
+         "name": "MTS_CTS_OBSERVED_EXTRACTION",
+         "claim": "OBSERVED import extraction for .mts or .cts files"},
+        {"id": "W7",
+         "name": "PERMISSION_DENIED_SUBTREE_COMPLETENESS",
+         "claim": "completeness over permission-denied subtrees"},
+        {"id": "W8",
+         "name": "SELF_REFERENTIAL_SYMLINK_REPORT_AND_SKIP",
+         "claim": "every self-referential symlink loop is reported and skipped"},
+        {"id": "W9",
+         "name": "HOSTED_AUTHENTICATED_OR_MULTI_TENANT_OPERATION",
+         "claim": "hosted, authenticated, or multi-tenant operation"},
+    ],
+}
 
 EOL_RULES_VERSION = "2026-10-25.1"
 MAX_FILES_DEFAULT = 5000
@@ -1425,6 +1482,7 @@ def scan_target(args):
     return {
         "target": str(root_real),
         "descriptor": DESCRIPTOR,
+        "claim_scope": CLAIM_SCOPE,
         "architecture": architecture,
         "dependencies": {"declared": declared, "observed": observed,
                          "inferred": inferred},
@@ -1453,6 +1511,7 @@ def scan_target(args):
 def architecture_map(args):
     full = scan_target(args)
     return {"target": full["target"], "descriptor": DESCRIPTOR,
+            "claim_scope": full["claim_scope"],
             "architecture": full["architecture"],
             "unknowns": full["unknowns"], "truncated": full["truncated"],
             "truncation_reasons": full["truncation_reasons"]}
@@ -1461,6 +1520,7 @@ def architecture_map(args):
 def dependency_risk_list(args):
     full = scan_target(args)
     return {"target": full["target"], "descriptor": DESCRIPTOR,
+            "claim_scope": full["claim_scope"],
             "dependencies": full["dependencies"], "risks": full["risks"],
             "runtime_specs": full["runtime_specs"],
             "eol_rules_version": full["eol_rules_version"],
@@ -1471,6 +1531,7 @@ def dependency_risk_list(args):
 def modernization_inputs(args):
     full = scan_target(args)
     return {"target": full["target"], "descriptor": DESCRIPTOR,
+            "claim_scope": full["claim_scope"],
             "modernization_inputs": full["modernization_inputs"],
             "unknowns": full["unknowns"], "truncated": full["truncated"],
             "truncation_reasons": full["truncation_reasons"]}
