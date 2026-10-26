@@ -1,0 +1,12 @@
+{
+ "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+ "description": "Point an agent at a codebase: narrowed-scope architecture map, dependency/EOL risk list.",
+ "name": "io.github.CYAN-ECLIPSE-TECHNOLOGIES-LLC/legacy-recon",
+ "repository": {
+  "source": "github",
+  "url": "https://github.com/CYAN-ECLIPSE-TECHNOLOGIES-LLC/eclipse-legacy-recon-mcp"
+ },
+ "title": "Eclipse Legacy Recon MCP",
+ "version": "0.1.0",
+ "websiteUrl": "https://eclipsebazaar.com"
+}
